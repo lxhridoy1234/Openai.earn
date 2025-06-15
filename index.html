@@ -1,38 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
   <title>Earn Coins by Watching Ads</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Monetag SDK -->
   <script src='//libtl.com/sdk.js' data-zone='9450643' data-sdk='show_9450643'></script>
+
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f2f2f2, #e2e2ff);
       padding: 20px;
       text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+    h2 {
+      color: #4b2db2;
+      margin-bottom: 20px;
+      font-weight: bold;
     }
     .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: scale(1.02);
     }
     .btn {
-      background-color: #673ab7;
+      background-color: #6a1b9a;
       color: white;
-      padding: 12px 24px;
+      padding: 14px 28px;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: 17px;
       cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #8e24aa;
     }
     #countdown {
-      color: red;
+      margin-top: 15px;
+      color: #d32f2f;
+      font-size: 18px;
       font-weight: bold;
-      margin-top: 10px;
+      animation: pulse 1s infinite;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
   </style>
 </head>
@@ -41,13 +76,13 @@
   <h2>🎬 অ্যাড দেখে কয়েন ইনকাম করুন</h2>
 
   <div class="card">
-    <p><strong>👤 ইউজার:</strong> <span id="user-name"></span></p>
+    <p><strong>👤 ইউজার:</strong> <span id="user-name">লোড হচ্ছে...</span></p>
     <p><strong>🪙 কয়েন ব্যালেন্স:</strong> <span id="balance">0</span> কয়েন</p>
     <p><strong>📺 দেখা হয়েছে:</strong> <span id="views">0</span> টি অ্যাড</p>
   </div>
 
   <div class="card">
-    <button class="btn" onclick="watchAd()" id="watchBtn">🎬 এখন অ্যাড দেখুন</button>
+    <button class="btn" id="watchBtn" onclick="watchAd()">🎬 এখন অ্যাড দেখুন</button>
     <p id="countdown"></p>
   </div>
 
@@ -55,27 +90,39 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    document.getElementById('user-name').innerText = tg.initDataUnsafe.user?.first_name || "Unknown";
+    const userName = tg.initDataUnsafe?.user?.first_name || "Unknown";
+    document.getElementById('user-name').innerText = userName;
 
-    let coins = 0;
-    let views = 0;
+    // Load from localStorage
+    let coins = parseInt(localStorage.getItem('coins')) || 0;
+    let views = parseInt(localStorage.getItem('views')) || 0;
+
+    updateUI();
+
+    function updateUI() {
+      document.getElementById('balance').innerText = coins;
+      document.getElementById('views').innerText = views;
+    }
+
+    function saveData() {
+      localStorage.setItem('coins', coins);
+      localStorage.setItem('views', views);
+    }
 
     function watchAd() {
       document.getElementById("watchBtn").disabled = true;
 
-      // অ্যাড শো করার জন্য SDK কল করে
       if (typeof show_9450643 === 'function') {
         show_9450643();
       }
 
-      // ১০ সেকেন্ড কাউন্টডাউন
       let countdown = 10;
-      document.getElementById("countdown").innerText = `⏳ অপেক্ষা করুন ${countdown} সেকেন্ড...`;
+      const countdownEl = document.getElementById("countdown");
+      countdownEl.innerText = `⏳ অপেক্ষা করুন ${countdown} সেকেন্ড...`;
 
       const timer = setInterval(() => {
         countdown--;
-        document.getElementById("countdown").innerText = `⏳ অপেক্ষা করুন ${countdown} সেকেন্ড...`;
-
+        countdownEl.innerText = `⏳ অপেক্ষা করুন ${countdown} সেকেন্ড...`;
         if (countdown <= 0) {
           clearInterval(timer);
           rewardUser();
@@ -86,8 +133,8 @@
     function rewardUser() {
       coins += 200;
       views += 1;
-      document.getElementById("balance").innerText = coins;
-      document.getElementById("views").innerText = views;
+      saveData();
+      updateUI();
       document.getElementById("countdown").innerText = "✅ আপনি ২০০ কয়েন পেয়েছেন!";
       document.getElementById("watchBtn").disabled = false;
     }
