@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Earn Coins by Watching Ads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src='//libtl.com/sdk.js' data-zone='9450643' data-sdk='show_9450643'></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .btn {
+      background-color: #673ab7;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #countdown {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🎬 অ্যাড দেখে কয়েন ইনকাম করুন</h2>
+
+  <div class="card">
+    <p><strong>👤 ইউজার:</strong> <span id="user-name"></span></p>
+    <p><strong>🪙 কয়েন ব্যালেন্স:</strong> <span id="balance">0</span> কয়েন</p>
+    <p><strong>📺 দেখা হয়েছে:</strong> <span id="views">0</span> টি অ্যাড</p>
+  </div>
+
+  <div class="card">
+    <button class="btn" onclick="watchAd()" id="watchBtn">🎬 এখন অ্যাড দেখুন</button>
+    <p id="countdown"></p>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    document.getElementById('user-name').innerText = tg.initDataUnsafe.user?.first_name || "Unknown";
+
+    let coins = 0;
+    let views = 0;
+
+    function watchAd() {
+      document.getElementById("watchBtn").disabled = true;
+
+      // অ্যাড শো করার জন্য SDK কল করে
+      if (typeof show_9450643 === 'function') {
+        show_9450643();
+      }
+
+      // ১০ সেকেন্ড কাউন্টডাউন
+      let countdown = 10;
+      document.getElementById("countdown").innerText = `⏳ অপেক্ষা করুন ${countdown} সেকেন্ড...`;
+
+      const timer = setInterval(() => {
+        countdown--;
+        document.getElementById("countdown").innerText = `⏳ অপেক্ষা করুন ${countdown} সেকেন্ড...`;
+
+        if (countdown <= 0) {
+          clearInterval(timer);
+          rewardUser();
+        }
+      }, 1000);
+    }
+
+    function rewardUser() {
+      coins += 200;
+      views += 1;
+      document.getElementById("balance").innerText = coins;
+      document.getElementById("views").innerText = views;
+      document.getElementById("countdown").innerText = "✅ আপনি ২০০ কয়েন পেয়েছেন!";
+      document.getElementById("watchBtn").disabled = false;
+    }
+  </script>
+
+</body>
+</html>
