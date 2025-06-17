@@ -114,6 +114,7 @@
     tg.expand();
 
     const userName = tg.initDataUnsafe?.user?.first_name || "Unknown";
+    const userId = tg.initDataUnsafe?.user?.id || "Unknown";
     document.getElementById("user-name").innerText = userName;
 
     let coins = parseInt(localStorage.getItem("coins")) || 0;
@@ -160,7 +161,7 @@
 
     function calculateBDT() {
       const amount = parseInt(document.getElementById("coinAmount").value) || 0;
-      const bdt = (amount * 0.0098).toFixed(2); // 50 coins = 0.49 BDT
+      const bdt = (amount * 0.0098).toFixed(2);
       document.getElementById("bdtValue").innerText = `You will get: ${bdt} BDT`;
     }
 
@@ -187,6 +188,26 @@
       coins -= amount;
       saveData();
       updateUI();
+
+      // ✅ Withdraw info Telegram Bot-এ পাঠানো
+      const message = `
+🔔 New Withdraw Request!
+👤 User: ${userName} (ID: ${userId})
+💰 Amount: ${amount} coins
+💳 Method: ${method.toUpperCase()}
+📱 Account: ${account}
+      `;
+
+      fetch(`https://api.telegram.org/bot8088507666:AAGxnWx0-i6aKT1pWHXskK5VSmDkYqPLYis/sendMessage`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chat_id: "6593402184",
+          text: message
+        })
+      });
 
       document.getElementById("withdraw-section").innerHTML = `
         <h3>✅ Withdraw request submitted!</h3>
