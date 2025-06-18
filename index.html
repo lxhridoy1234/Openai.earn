@@ -8,7 +8,7 @@
   <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Ad SDK -->
+  <!-- Ad SDK (Monetag or similar) -->
   <script src='//libtl.com/sdk.js' data-zone='9450911' data-sdk='show_9450911'></script>
 
   <style>
@@ -69,7 +69,7 @@
 <body>
 
   <h2>Open AI Earning</h2>
-  <p>Earn <strong><span id="coinRate">50</span></strong> coins for watching each ad</p>
+  <p>Earn 50 coins for watching each ad</p>
 
   <div class="card" id="profile">
     <p><strong>User:</strong> <span id="user-name">Loading...</span></p>
@@ -80,11 +80,6 @@
   <div class="card" id="ad-section">
     <button class="btn" onclick="watchAd()">🎬 Watch Ad</button>
     <p id="countdown"></p>
-  </div>
-
-  <div class="card" id="auto-ad-controls">
-    <button class="btn" onclick="startAutoAds()">▶️ Start Auto Ads</button>
-    <button class="btn back-btn" onclick="stopAutoAds()">⏹️ Stop</button>
   </div>
 
   <div class="card">
@@ -115,15 +110,8 @@
   </div>
 
   <script>
-    // Configurable Variables
-    const COINS_PER_AD = 50;
-    const MIN_WITHDRAW = 100000;
-    const REFERRAL_BONUS = 500;
-
     const tg = window.Telegram.WebApp;
     tg.expand();
-
-    document.getElementById("coinRate").innerText = COINS_PER_AD;
 
     const userName = tg.initDataUnsafe?.user?.first_name || "Unknown";
     const userId = tg.initDataUnsafe?.user?.id || "Unknown";
@@ -131,7 +119,6 @@
 
     let coins = parseInt(localStorage.getItem("coins")) || 0;
     let views = parseInt(localStorage.getItem("views")) || 0;
-    let autoAdInterval = null;
 
     function updateUI() {
       document.getElementById("balance").innerText = coins;
@@ -145,6 +132,8 @@
 
     function watchAd() {
       document.querySelector("#countdown").innerText = "⏳ Please wait 10 seconds...";
+      document.querySelector("#countdown").style.color = "#d32f2f";
+
       if (typeof show_9450911 === "function") {
         show_9450911();
       }
@@ -155,27 +144,13 @@
         document.querySelector("#countdown").innerText = `⏳ Please wait ${countdown} seconds...`;
         if (countdown <= 0) {
           clearInterval(interval);
-          coins += COINS_PER_AD;
+          coins += 50;
           views++;
           saveData();
           updateUI();
-          document.querySelector("#countdown").innerText = `✅ You earned ${COINS_PER_AD} coins!`;
+          document.querySelector("#countdown").innerText = "✅ You earned 50 coins!";
         }
       }, 1000);
-    }
-
-    function startAutoAds() {
-      if (autoAdInterval) return;
-      watchAd();
-      autoAdInterval = setInterval(() => {
-        watchAd();
-      }, 10000);
-    }
-
-    function stopAutoAds() {
-      clearInterval(autoAdInterval);
-      autoAdInterval = null;
-      document.querySelector("#countdown").innerText = "⏹️ Auto Ads Stopped";
     }
 
     function showWithdraw() {
@@ -195,8 +170,8 @@
       const amount = parseInt(document.getElementById("coinAmount").value);
       const account = document.getElementById("accountNumber").value.trim();
 
-      if (isNaN(amount) || amount < MIN_WITHDRAW) {
-        alert(`Minimum withdraw is ${MIN_WITHDRAW} coins.`);
+      if (isNaN(amount) || amount < 100000) {
+        alert("Minimum withdraw is 100000 coins.");
         return;
       }
 
@@ -214,13 +189,7 @@
       saveData();
       updateUI();
 
-      document.getElementById("withdraw-section").innerHTML = `
-        <h3>⏳ Submitting Withdraw Request...</h3>
-        <div style="margin: 20px 0;">
-          <img src="https://i.gifer.com/ZZ5H.gif" width="60" />
-        </div>
-      `;
-
+      // ✅ Withdraw info Telegram Bot-এ পাঠানো
       const message = `
 🔔 New Withdraw Request!
 👤 User: ${userName} (ID: ${userId})
@@ -238,18 +207,16 @@
           chat_id: "6593402184",
           text: message
         })
-      }).then(() => {
-        setTimeout(() => {
-          document.getElementById("withdraw-section").innerHTML = `
-            <h3>✅ Withdraw request submitted!</h3>
-            <p>Method: ${method.toUpperCase()}</p>
-            <p>Amount: ${amount} coins</p>
-            <p>Account Number: ${account}</p>
-            <p>We will process your request soon.</p>
-            <button class="btn back-btn" onclick="goBack()">🔙 Back</button>
-          `;
-        }, 1500);
       });
+
+      document.getElementById("withdraw-section").innerHTML = `
+        <h3>✅ Withdraw request submitted!</h3>
+        <p>Method: ${method.toUpperCase()}</p>
+        <p>Amount: ${amount} coins</p>
+        <p>Account Number: ${account}</p>
+        <p>We will process your request soon.</p>
+        <button class="btn back-btn" onclick="goBack()">🔙 Back</button>
+      `;
     }
 
     function showReferral() {
