@@ -4,11 +4,7 @@
   <meta charset="UTF-8">
   <title>Open AI Earning</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Ad SDK (Monetag or similar) -->
   <script src='//libtl.com/sdk.js' data-zone='9450911' data-sdk='show_9450911'></script>
 
   <style>
@@ -161,7 +157,7 @@
 
     function calculateBDT() {
       const amount = parseInt(document.getElementById("coinAmount").value) || 0;
-      const bdt = (amount * 0.0098).toFixed(2);
+      const bdt = (amount * 0.0038).toFixed(2); // 50 coins = 0.19 BDT
       document.getElementById("bdtValue").innerText = `You will get: ${bdt} BDT`;
     }
 
@@ -189,7 +185,6 @@
       saveData();
       updateUI();
 
-      // ✅ Withdraw info Telegram Bot-এ পাঠানো
       const message = `
 🔔 New Withdraw Request!
 👤 User: ${userName} (ID: ${userId})
