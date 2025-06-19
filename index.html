@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Open AI Earning</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src='//libtl.com/sdk.js' data-zone='9450911' data-sdk='show_9450911'></script>
+  <script src="//libtl.com/sdk.js" data-zone="9450911" data-sdk="show_9450911"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -65,7 +65,7 @@
 <body>
 
   <h2>Open AI Earning</h2>
-  <p>Earn 50 coins for watching each ad</p>
+  <p>Earn 50 coins after ad + claim</p>
 
   <div class="card" id="profile">
     <p><strong>User:</strong> <span id="user-name">Loading...</span></p>
@@ -75,6 +75,7 @@
 
   <div class="card" id="ad-section">
     <button class="btn" onclick="watchAd()">🎬 Watch Ad</button>
+    <button class="btn hidden" id="claimBtn" onclick="claimCoins()">🎁 Claim Coin</button>
     <p id="countdown"></p>
   </div>
 
@@ -127,8 +128,27 @@
     }
 
     function watchAd() {
-      document.querySelector("#countdown").innerText = "⏳ Please wait 10 seconds...";
-      document.querySelector("#countdown").style.color = "#d32f2f";
+      document.getElementById("claimBtn").classList.add("hidden");
+      document.getElementById("countdown").innerText = "⏳ Please wait 10 seconds...";
+      if (typeof show_9450911 === "function") {
+        show_9450911();
+      }
+
+      let countdown = 10;
+      const interval = setInterval(() => {
+        countdown--;
+        document.getElementById("countdown").innerText = `⏳ Please wait ${countdown} seconds...`;
+        if (countdown <= 0) {
+          clearInterval(interval);
+          document.getElementById("countdown").innerText = "✅ Ad watched. Now claim your coin!";
+          document.getElementById("claimBtn").classList.remove("hidden");
+        }
+      }, 1000);
+    }
+
+    function claimCoins() {
+      document.getElementById("claimBtn").classList.add("hidden");
+      document.getElementById("countdown").innerText = "⏳ Verifying your claim...";
 
       if (typeof show_9450911 === "function") {
         show_9450911();
@@ -137,14 +157,14 @@
       let countdown = 10;
       const interval = setInterval(() => {
         countdown--;
-        document.querySelector("#countdown").innerText = `⏳ Please wait ${countdown} seconds...`;
+        document.getElementById("countdown").innerText = `⏳ Claiming in ${countdown} seconds...`;
         if (countdown <= 0) {
           clearInterval(interval);
           coins += 50;
           views++;
           saveData();
           updateUI();
-          document.querySelector("#countdown").innerText = "✅ You earned 50 coins!";
+          document.getElementById("countdown").innerText = "🎉 You earned 50 coins!";
         }
       }, 1000);
     }
@@ -157,7 +177,7 @@
 
     function calculateBDT() {
       const amount = parseInt(document.getElementById("coinAmount").value) || 0;
-      const bdt = (amount * 0.0038).toFixed(2); // 50 coins = 0.19 BDT
+      const bdt = (amount * 0.0038).toFixed(2);
       document.getElementById("bdtValue").innerText = `You will get: ${bdt} BDT`;
     }
 
